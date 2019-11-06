@@ -2,7 +2,8 @@
 title: "Ideas"
 author: "Yuxiang Chen, Muxue Kou, Eyerusalem F. Abebaw"
 date: "11/6/2019"
-output: html_document
+output: 
+  html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -10,3 +11,38 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
+# World Suicide Rate
+
+## We gonna look into country-level data and find potential determinants of suicide rate across countries and time. 
+
+
+```{r}
+library(readr)
+Suicide_Rates <- read_csv("Suicide Rates Overview 1985 to 2016.csv")
+```
+
+```{r}
+library(dplyr)
+library(ggplot2)
+```
+
+
+### Sex
+```{r}
+Suicide_Rates%>%
+  group_by(sex)%>%
+  summarize(sum=sum(`suicides/100k pop`))%>%
+  ggplot(aes(x=sex,y=sum))+geom_col()
+```
+
+
+### Age
+```{r}
+label_names<-c("5-14 years","15-24 years","25-34 years","35-54 years","55-74 years","75+ years")
+Suicide_Rates%>%
+  mutate(new_age=ifelse(age=="5-14 years",0,ifelse(age=="15-24 years", 1, ifelse(age=="25-34 years", 2, ifelse(age=="35-54 years", 3, ifelse(age=="55-74 years", 4, 5))))))%>%
+  group_by(new_age)%>%
+  summarize(sum=sum(`suicides/100k pop`))%>%
+  ggplot(aes(x=factor(new_age),y=sum))+geom_col()+labs(x="age") %>% 
+  scale_x_discrete(labels=label_names)
+```
