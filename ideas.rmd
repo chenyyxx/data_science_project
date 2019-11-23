@@ -46,3 +46,13 @@ Suicide_Rates%>%
   ggplot(aes(x=factor(new_age),y=sum))+geom_col()+labs(x="age") %>% 
   scale_x_discrete(labels=label_names)
 ```
+
+
+```{r}
+load("/Users/eyerusalemabebaw/Desktop/data_science_project/Ouma_Okiro_Snow_Africa_Hospitals_Data.RData")
+```
+
+
+
+
+
