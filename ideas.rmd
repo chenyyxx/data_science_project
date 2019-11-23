@@ -47,12 +47,14 @@ Suicide_Rates%>%
   scale_x_discrete(labels=label_names)
 ```
 
+```{r}
+load("~/Desktop/data_science_project/Ouma_Okiro_Snow_Africa_Hospitals_Data.RData")
+Sub_Saharan_Africa_Public_Hospitals <- x
 ```
-Sub_Saharan_Africa_Public_Hospitals <- ("/Users/eyerusalemabebaw/Desktop/data_science_project/Ouma_Okiro_Snow_Africa_Hospitals_Data.RData")
+
 
 ```{r}
 # GDP vs suicide No
-```{r}
 Suicide_Rates %>% 
   #group_by(country) %>% 
   #summarise(mean_suicides_per_100k=mean(`suicides/100k pop`), mean_gdp = mean(`gdp_for_year ($)`), mean_gdp_percapita=mean(`gdp_per_capita ($)`)) %>% 
