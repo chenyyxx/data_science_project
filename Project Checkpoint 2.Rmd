@@ -1,0 +1,106 @@
+---
+title: "Data Science"
+author: "Muxue Kou"
+date: "2019/11/22"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+```
+
+```{r}
+load("Suicide_Rates.Rda") 
+Suicide_Rates_omit <- Suicide_Rates %>%
+  select(-Primary_school) %>%
+  na.omit()
+```
+```{r}
+library(readr)
+Suicide_Rates_Raw <- read_csv("Suicide Rates Overview 1985 to 2016.csv")
+```
+```{r}
+Suicide_Rates_Raw%>%
+  group_by(sex)%>%
+  summarize(sum=sum(`suicides/100k pop`))%>%
+  ggplot(aes(x=sex,y=sum))+geom_col()
+```
+```{r}
+Suicide_Rates_Raw%>%
+  ggplot(aes(x=sex,y=`suicides/100k pop`))+
+  geom_boxplot()
+```
+
+```{r}
+label_names<-c("5-14 years","15-24 years","25-34 years","35-54 years","55-74 years","75+ years")
+Suicide_Rates_Raw%>%
+  mutate(new_age=ifelse(age=="5-14 years",0,ifelse(age=="15-24 years", 1, ifelse(age=="25-34 years", 2, ifelse(age=="35-54 years", 3, ifelse(age=="55-74 years", 4, 5))))))%>%
+  group_by(new_age)%>%
+  summarize(sum=sum(`suicides/100k pop`))%>%
+  ggplot(aes(x=factor(new_age),y=sum))+geom_col()+labs(x="age") %>% 
+  scale_x_discrete(labels=label_names)
+```
+```{r}
+Suicide_Rates%>%
+  ggplot(aes(x=gdp_capita,y=suicide_100k))+
+  geom_point()+
+  geom_smooth()
+```
+```{r}
+Suicide_Rates%>%
+  ggplot(aes(x=Birth_Rate,y=suicide_100k))+
+  geom_point()+
+  geom_smooth()
+```
+
+
+```{r}
+top_Suicide_Rates <- Suicide_Rates%>%
+  group_by(country)%>%
+  summarize(mean_suicide_100k = mean(suicide_100k))%>%
+  filter(mean_suicide_100k >183)%>% #top 30
+  arrange(desc(mean_suicide_100k))
+```
+
+```{r}
+top_Suicide_Rates 
+```
+
+```{r}
+Suicide_Rates%>%
+  filter(year == 1985)%>%
+  arrange(desc(suicide_100k))
+```
+
+```{r}
+Suicide_Rates%>%
+  filter(year == 2015)%>%
+  arrange(desc(suicide_100k))
+```
+```{r}
+Suicide_Rates %>%
+  filter(country == "Republic of Korea")%>%
+  ggplot(aes(x=year,y=suicide_100k))+
+  geom_line()
+```
+```{r}
+Suicide_Rates %>% 
+  filter(country == "Finland")%>% # Finland is the 2019 world happiest country
+  ggplot(aes(x=year,y=suicide_100k))+
+  geom_line()
+```
+```{r}
+Suicide_Rates_Raw %>%
+  group_by(year,age)%>%
+  summarize(sum_suicides_no = sum(suicides_no))%>%
+  ggplot()+
+  geom_line(aes(x=year,y=sum_suicides_no,color=age))+
+  geom_smooth(aes(x=year,y=sum_suicides_no))+
+  xlim(1985,2015)
+```
+
