@@ -47,12 +47,41 @@ Suicide_Rates%>%
   scale_x_discrete(labels=label_names)
 ```
 
+```
+Sub_Saharan_Africa_Public_Hospitals <- ("/Users/eyerusalemabebaw/Desktop/data_science_project/Ouma_Okiro_Snow_Africa_Hospitals_Data.RData")
 
 ```{r}
-Sub_Saharan_Africa_Public_Hospitals <- ("/Users/eyerusalemabebaw/Desktop/data_science_project/Ouma_Okiro_Snow_Africa_Hospitals_Data.RData")
+# GDP vs suicide No
+```{r}
+Suicide_Rates %>% 
+  #group_by(country) %>% 
+  #summarise(mean_suicides_per_100k=mean(`suicides/100k pop`), mean_gdp = mean(`gdp_for_year ($)`), mean_gdp_percapita=mean(`gdp_per_capita ($)`)) %>% 
+  #ungroup() %>% 
+  #arrange(desc(mean_suicides_per_100k)) %>% 
+  ggplot(aes(x=`gdp_per_capita ($)`, y=`suicides/100k pop`))+
+    geom_point()+
+    geom_smooth(method = "lm")
 ```
 
+# sex vs suicide No across time
+```{r}
+Suicide_Rates %>% 
+  filter(year!=2016) %>% 
+  group_by(year,sex) %>% 
+  summarise(total_suicides_per100k = sum(`suicides/100k pop`)) %>% 
+  #summarise(total_suicides_per100k = sum(suicides_no)/sum(population)) %>% 
+  ggplot(aes(x=`year`, y=total_suicides_per100k, color=sex))+
+    geom_line()
+```
 
-
-
+# age vs suicide No across time
+```{r}
+Suicide_Rates %>% 
+  filter(year!=2016) %>% 
+  group_by(year,age) %>% 
+  summarise(total_suicides_per100k = sum(`suicides/100k pop`)) %>% 
+  #summarise(total_suicides_per100k = sum(suicides_no)/sum(population)) %>% 
+  ggplot(aes(x=`year`, y=total_suicides_per100k, color=age))+
+    geom_line()
+```
 
