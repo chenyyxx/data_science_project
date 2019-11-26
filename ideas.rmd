@@ -52,6 +52,10 @@ load("~/Desktop/data_science_project/Ouma_Okiro_Snow_Africa_Hospitals_Data.RData
 Sub_Saharan_Africa_Public_Hospitals <- x
 ```
 
+```{r}
+Sub_Saharan_Africa_Public_Hospitals %>% 
+  
+```
 
 ```{r}
 # GDP vs suicide No
