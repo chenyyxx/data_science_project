@@ -103,4 +103,7 @@ Suicide_Rates_Raw %>%
   geom_smooth(aes(x=year,y=sum_suicides_no))+
   xlim(1985,2015)
 ```
+```{r}
+
+```
 
