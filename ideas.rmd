@@ -24,7 +24,7 @@ Suicide_Rates <- read_csv("Suicide Rates Overview 1985 to 2016.csv")
 ```{r}
 library(dplyr)
 library(ggplot2)
-library(leaflet)
+library(readr)
 library(ggmap)
 ```
 
@@ -58,19 +58,29 @@ Sub_Saharan_Africa_Public_Hospitals <- x
 Sub_Saharan_Africa_Public_Hospitals %>% 
   group_by(Country) %>% 
   summarize(n = n()) %>% 
-  mutate(prop=)
   arrange(desc(n))
+  
+#later going to look at access to hospitals prortional to population instead of just numerical since this doen't take into account that some countries are more populous and have more facilites as a result. 
 ```
 
 ```{r}
-library(readr)
-Population_Growth_Fertility_and_Mortality_Indicators <- read_csv("~/Downloads/Population Growth, Fertility and Mortality Indicators.csv")
-View(Population_Growth_Fertility_and_Mortality_Indicators)
+Mental_Health_Resources <- read_csv("~/Downloads/data.csv")
+View(data)
 ```
 
 ```{r}
-Population_Growth_Fertility_and_Mortality_Indicators 
+Mental_Health_Resources %>%
+  group_by(Country) %>% 
+  count(`Mental hospitals (per 100 000 population)`) %>% 
+  arrange(desc(`Mental hospitals (per 100 000 population)`)) %>% 
+  head(10)
 ```
+
+```{r}
+More_Data_on_Suicide_Rates <- read_csv("~/Downloads/More_Data_on_Suicide_Rates.zip")
+View(More_Data_on_Suicide_Rates)
+```
+
 
 ```{r}
 # GDP vs suicide No
