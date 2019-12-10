@@ -59,8 +59,6 @@ Sub_Saharan_Africa_Public_Hospitals %>%
   group_by(Country) %>% 
   summarize(n = n()) %>% 
   arrange(desc(n))
-  
-#later going to look at access to hospitals prortional to population instead of just numerical since this doen't take into account that some countries are more populous and have more facilites as a result. 
 ```
 
 ```{r}
@@ -80,7 +78,6 @@ Mental_Health_Resources %>%
 More_Data_on_Suicide_Rates <- read_csv("~/Downloads/More_Data_on_Suicide_Rates.zip")
 View(More_Data_on_Suicide_Rates)
 ```
-
 
 ```{r}
 # GDP vs suicide No
