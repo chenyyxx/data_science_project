@@ -13,6 +13,12 @@ library(ggplot2)
 library(tidyr)
 library(dplyr)
 ```
+```{r}
+library(readr)
+Suicide_Mortality_by_State <- read_csv("Suicide Mortality by State.csv")
+View(Suicide_Mortality_by_State)
+```
+
 
 ```{r}
 load("Suicide_Rates.Rda") 
@@ -104,6 +110,28 @@ Suicide_Rates_Raw %>%
   xlim(1985,2015)
 ```
 ```{r}
-
+library(ggplot2)
+library(maps)
+library(ggthemes)
+library(ggmap) 
+library(openintro)
 ```
+```{r}
+states_map <- map_data("state")
+```
+
+```{r}
+state <-Suicide_Mortality_by_State %>% 
+ mutate(state = tolower(abbr2state(`State`))) 
+```
+
+
+```{r}
+state%>% 
+  ggplot(aes(fill = RATE)) +
+  geom_map(aes(map_id = state), map = states_map) +
+  expand_limits(x = states_map$long, y = states_map$lat) + 
+  theme_map(15)
+```
+
 
