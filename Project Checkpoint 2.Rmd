@@ -31,6 +31,11 @@ library(readr)
 Suicide_Rates_Raw <- read_csv("Suicide Rates Overview 1985 to 2016.csv")
 ```
 ```{r}
+library(readr)
+mental_health_expenditure <- read_csv("~/Muxue/academic/2019Fall/Stats122/data_science_project/mental_health_expenditure.csv")
+```
+
+```{r}
 Suicide_Rates_Raw%>%
   group_by(sex)%>%
   summarize(sum=sum(`suicides/100k pop`))%>%
@@ -121,17 +126,74 @@ states_map <- map_data("state")
 ```
 
 ```{r}
+mental_exp <- mental_health_expenditure %>%
+  mutate(State = tolower(`state`),exp = mental_health_expenditure)%>%
+  select(-state)
+  
 state <-Suicide_Mortality_by_State %>% 
- mutate(state = tolower(abbr2state(`State`))) 
+  mutate(state = tolower(abbr2state(`State`))) %>%
+  left_join(mental_exp, by=c("state"="State"))
 ```
 
+```{r}
+state%>%
+  filter(Year==2017)%>%
+  arrange(desc(RATE))
 
+state%>%
+   filter(Year==2017)%>%
+  arrange(RATE)
+```
+https://socviz.co/maps.html
+```{r}
+state%>% 
+  filter(Year==2017)%>%
+  ggplot(aes(fill = RATE)) +
+  geom_map(aes(map_id = state), map = states_map) +
+  expand_limits(x = states_map$long, y = states_map$lat) + 
+  scale_fill_continuous(low="thistle2", high="darkred", guide="colorbar") +
+  theme_map(15)+
+  labs(title = "Suicide Mortality by State Year 2017 (deaths per 100,000 people)")
+
+state%>% 
+  filter(Year==2005)%>%
+  ggplot(aes(fill = RATE)) +
+  geom_map(aes(map_id = state), map = states_map) +
+  expand_limits(x = states_map$long, y = states_map$lat) + 
+  scale_fill_continuous(low="thistle2", high="darkred", guide="colorbar") +
+  theme_map(15)+
+  labs(title = "Suicide Mortality by State Year 2005 (deaths per 100,000 people)")
+```
 ```{r}
 state%>% 
   ggplot(aes(fill = RATE)) +
   geom_map(aes(map_id = state), map = states_map) +
   expand_limits(x = states_map$long, y = states_map$lat) + 
-  theme_map(15)
+  scale_fill_continuous(low="thistle2", high="darkred", guide="colorbar") +
+  theme_map(15)+
+  theme(legend.position="right")+
+  labs(title = "Suicide Mortality by State Year (deaths per 100,000 people)")+
+  facet_wrap(vars(Year))
 ```
 
+```{r}
+state%>% 
+  filter(Year==2017)%>%
+  ggplot(aes(fill = exp)) +
+  geom_map(aes(map_id = state), map = states_map) +
+  expand_limits(x = states_map$long, y = states_map$lat) + 
+  scale_fill_continuous(low="thistle2", high="darkred", guide="colorbar") +
+  theme_map(15)+
+  labs(title = "Mental Health Expenditure 2013 (per capita)")
+```
+
+```{r}
+library(statebins)
+state %>%
+  filter (Year == 2017)%>%
+  statebins_continuous(state_col = "State",
+                     text_color = "white", value_col = "RATE",
+                     brewer_pal="Reds", font_size = 3,
+                     legend_title="Suicide Rate")
+```
 
