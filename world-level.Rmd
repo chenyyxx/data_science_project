@@ -1,0 +1,163 @@
+---
+title: "world-level"
+author: "Yuxiang CHen"
+date: "12/11/2019"
+output: html_document
+---
+
+
+### Load Packages
+```{r}
+library(tidyverse)
+library(devtools) 
+library(openintro)
+library(maps) #new
+library(ggthemes) #new 
+library(ggmap) #new - please see note above!
+library(readr)
+```
+
+### Load Data
+```{r}
+Suicide_Rates_Raw <- read_csv("Suicide Rates Overview 1985 to 2016.csv")
+world <- get_stamenmap(
+    bbox = c(left = -180, bottom = -57, right = 179, top = 82.1), 
+    maptype = "terrain",
+    zoom = 2
+)
+```
+```{r}
+# Clean data such that it matches the world map data
+
+#Suicide_Rates_Raw$country[Suicide_Rates_Raw$country=="Cabo Verde"] <-"Cape Verde"
+#Suicide_Rates_Raw$country[Suicide_Rates_Raw$country=="United Kingdom"] <-"UK"
+#Suicide_Rates_Raw$country[Suicide_Rates_Raw$country=="United States"] <-"USA"
+Suicide_Rates_Raw$country[Suicide_Rates_Raw$country=="Russian Federation"] <-"Russia"
+#Suicide_Rates_Raw$country[Suicide_Rates_Raw$country=="Republic of Korea"] <-"South Korea"
+Suicide_Rates_Raw$country[Suicide_Rates_Raw$country=="Bahamas"] <-"Bahamas, The"
+Suicide_Rates_Raw$country[Suicide_Rates_Raw$country=="Saint Vincent and Grenadines"] <-"Saint Vincent and the Grenadines"
+Suicide_Rates_Raw$country[Suicide_Rates_Raw$country=="Republic of Korea"] <-"Korea, South"
+Suicide_Rates<-Suicide_Rates_Raw %>% 
+  filter(country!="Macau")
+Suicide_Rates
+
+
+suicide_world <- Suicide_Rates %>% 
+  group_by(country,year) %>% 
+  summarise(rate=sum(`suicides/100k pop`), deaths=sum(suicides_no)) %>% 
+  filter(year==2010)
+
+head(suicide_world)
+```
+
+### Draw Map
+
+
+```{r}
+world_map <- map_data("world")
+
+# Check why the name of the country in the two datasets does not match
+world_map_country <- world_map%>% 
+  group_by(region) %>% 
+  summarise(sum(group)) %>% 
+  select(region)
+world_map_country
+write.table(world_map_country, file="world_map_country.csv",sep=",",row.names=F)
+
+suicide_data_country <- suicide_world %>% 
+  group_by(country) %>% 
+  summarise(sum(year)) %>% 
+  select(country)
+suicide_data_country
+
+world_map_suicide <-world_map %>% 
+  left_join(y=suicide_world, by=c("region"= "country"))
+world_map_suicide
+
+# Map V1 using geom_polygon
+ggplot(world_map_suicide, aes(x=long, y=lat, group=group, fill=deaths))+
+  geom_polygon(colour="black")+
+  scale_fill_gradient(low="white", high="steelblue")+
+  theme(panel.grid = element_blank(),
+        panel.background = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title = element_blank(),
+        legend.position = c(0.2,0.3))#平面地图
+
+# Map V2 using geom_map
+world_map_suicide %>% # right now, this map does not draw all the data we have since the some of the country names in our data set does not match
+  ggplot(aes(fill = deaths)) +
+  geom_map(aes(map_id = region, group=group), map = world_map) +
+  expand_limits(x = world_map$long, y = world_map$lat) + #This assures the map looks decently nice.
+  theme_map()
+```
+
+#### Map Using Plotly
+
+```{r}
+# Load Library
+library(plotly)
+```
+
+```{r}
+df <- read.csv('https://raw.githubusercontent.com/plotly/datasets/master/2014_world_gdp_with_codes.csv')
+df
+suicide<-df  %>% 
+  left_join(y=suicide_world, by=c("COUNTRY"="country")) %>% 
+  select(-`GDP..BILLIONS.`)
+suicide
+```
+
+```{r}
+
+# light grey boundaries
+l <- list(color = toRGB("grey40"), width = 0.5)
+
+# specify map projection/options
+g <- list(
+  showframe = TRUE,
+  showcoastlines = TRUE,
+  coastlinecolor = toRGB("grey40"),
+  coastlinewidth = 0.5,
+  showcountries=TRUE,
+  countrycolor=toRGB("grey40"),
+  countrywidth=0.5,
+  projection = list(type = 'Mercator')
+)
+
+# Number of deaths
+p_death <- plot_geo(suicide) %>%
+  add_trace(
+    z = ~deaths, color = ~deaths,colorscale="RdBu", 
+    text = ~COUNTRY, locations = ~CODE, marker = list(line = l)
+  ) %>%
+  colorbar(title = 'Number of Deaths') %>%
+  layout(
+    title = 'Suicides Stats: Number of Deaths',
+    geo = g
+  )
+
+# Suicide Rate (Number of Deaths per 100k)
+p_rate <- plot_geo(suicide) %>%
+  add_trace(
+    z = ~rate, color = ~rate, colorscale="Viridis",
+    text = ~COUNTRY, locations = ~CODE, marker = list(line = l)
+  ) %>%
+  colorbar(title = 'Suicide Rate') %>%
+  layout(
+    title = 'Suicides Stats: Suicide Rate',
+    geo = g
+  )
+
+p_death
+p_rate
+#chart_link1 = api_create(p_death, filename="suicide-number")
+#chart_link1
+#chart_link2 = api_create(p_rate, filename="suicide-rate")
+#chart_link2
+```
+
+
+
+
