@@ -18,6 +18,28 @@ library(readr)
 ```
 
 ### Load Data
+
+```{r}
+suicide_2017_raw <- read_csv("suicide_2017.csv")
+head(suicide_2017_raw)
+```
+```{r}
+
+suicide_2017 <-suicide_2017_raw %>% 
+  select(-c(cause, upper, lower, sex, measure, age, cause, year)) %>% 
+  pivot_wider(names_from = metric, values_from = val) %>% 
+  arrange(desc(Rate))
+suicide_2017$location[suicide_2017$location=="Russian Federation"] <-"Russia"
+suicide_2017$location[suicide_2017$location=="Cape Verde"] <-"Cabo Verde"
+suicide_2017$location[suicide_2017$location=="South Korea"] <-"Korea, South"
+suicide_2017$location[suicide_2017$location=="North Korea"] <-"Korea, North"
+suicide_2017$location[suicide_2017$location=="Democratic Republic of the Congo"] <-"Congo, Democratic Republic of the"
+suicide_2017$location[suicide_2017$location=="Congo"] <-"Congo, Republic of the"
+suicide_2017$location[suicide_2017$location=="Myanmar"] <-"Burma"
+head(suicide_2017)
+```
+
+
 ```{r}
 Suicide_Rates_Raw <- read_csv("Suicide Rates Overview 1985 to 2016.csv")
 world <- get_stamenmap(
@@ -39,7 +61,7 @@ Suicide_Rates_Raw$country[Suicide_Rates_Raw$country=="Saint Vincent and Grenadin
 Suicide_Rates_Raw$country[Suicide_Rates_Raw$country=="Republic of Korea"] <-"Korea, South"
 Suicide_Rates<-Suicide_Rates_Raw %>% 
   filter(country!="Macau")
-Suicide_Rates
+head(Suicide_Rates)
 
 
 suicide_world <- Suicide_Rates %>% 
@@ -61,18 +83,18 @@ world_map_country <- world_map%>%
   group_by(region) %>% 
   summarise(sum(group)) %>% 
   select(region)
-world_map_country
-write.table(world_map_country, file="world_map_country.csv",sep=",",row.names=F)
+head(world_map_country)
+
 
 suicide_data_country <- suicide_world %>% 
   group_by(country) %>% 
   summarise(sum(year)) %>% 
   select(country)
-suicide_data_country
+head(suicide_data_country)
 
 world_map_suicide <-world_map %>% 
   left_join(y=suicide_world, by=c("region"= "country"))
-world_map_suicide
+head(world_map_suicide)
 
 # Map V1 using geom_polygon
 ggplot(world_map_suicide, aes(x=long, y=lat, group=group, fill=deaths))+
@@ -100,14 +122,40 @@ world_map_suicide %>% # right now, this map does not draw all the data we have s
 library(plotly)
 ```
 
+### Load Data
+
+```{r}
+suicide_2017_raw <- read_csv("suicide_2017.csv")
+head(suicide_2017_raw)
+```
+```{r}
+
+suicide_2017 <-suicide_2017_raw %>% 
+  select(-c(cause, upper, lower, sex, measure, age, cause, year)) %>% 
+  pivot_wider(names_from = metric, values_from = val) %>% 
+  arrange(desc(Rate))
+suicide_2017$location[suicide_2017$location=="Russian Federation"] <-"Russia"
+suicide_2017$location[suicide_2017$location=="Cape Verde"] <-"Cabo Verde"
+suicide_2017$location[suicide_2017$location=="South Korea"] <-"Korea, South"
+suicide_2017$location[suicide_2017$location=="North Korea"] <-"Korea, North"
+suicide_2017$location[suicide_2017$location=="Democratic Republic of the Congo"] <-"Congo, Democratic Republic of the"
+suicide_2017$location[suicide_2017$location=="Congo"] <-"Congo, Republic of the"
+suicide_2017$location[suicide_2017$location=="Myanmar"] <-"Burma"
+head(suicide_2017)
+```
+
 ```{r}
 df <- read.csv('https://raw.githubusercontent.com/plotly/datasets/master/2014_world_gdp_with_codes.csv')
-df
+head(df)
 suicide<-df  %>% 
-  left_join(y=suicide_world, by=c("COUNTRY"="country")) %>% 
+  left_join(y=suicide_2017, by=c("COUNTRY"="location")) %>% 
   select(-`GDP..BILLIONS.`)
 suicide
+suicide_2017 %>% 
+  arrange(desc(location))
 ```
+
+#### Plot Map
 
 ```{r}
 
@@ -129,7 +177,7 @@ g <- list(
 # Number of deaths
 p_death <- plot_geo(suicide) %>%
   add_trace(
-    z = ~deaths, color = ~deaths,colorscale="RdBu", 
+    z = ~Number, color = ~Number,colorscale="Viridis", 
     text = ~COUNTRY, locations = ~CODE, marker = list(line = l)
   ) %>%
   colorbar(title = 'Number of Deaths') %>%
@@ -141,7 +189,7 @@ p_death <- plot_geo(suicide) %>%
 # Suicide Rate (Number of Deaths per 100k)
 p_rate <- plot_geo(suicide) %>%
   add_trace(
-    z = ~rate, color = ~rate, colorscale="Viridis",
+    z = ~Rate, color = ~Rate, colorscale="RdBu",
     text = ~COUNTRY, locations = ~CODE, marker = list(line = l)
   ) %>%
   colorbar(title = 'Suicide Rate') %>%
